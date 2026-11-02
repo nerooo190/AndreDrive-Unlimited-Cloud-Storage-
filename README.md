@@ -2,6 +2,10 @@
 
 Eine deutschsprachige Cloud- und Videobibliothek mit React, Express, SQLite und FFmpeg. Enthält eine ausdrücklich gekennzeichnete Vorschau und getrennte private Konten mit echter Dateiablage.
 
+## Bereitstellung auf Render oder Vercel
+
+Für Hosting und den Registrierungsfehler bei einem rein statischen Vercel-Deployment siehe [DEPLOYMENT.md](./DEPLOYMENT.md). `render.yaml` und `Dockerfile` stellen die vollständige App mit persistentem Speicher bereit.
+
 ## Starten
 
 Voraussetzungen: Node.js 24+ (mit `node:sqlite`), npm und FFmpeg mit libx264/AAC. Kein externer Dienst oder API-Schlüssel erforderlich.

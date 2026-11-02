@@ -4,10 +4,11 @@ import {Cloud,LayoutDashboard,Folder,Film,Link as LinkIcon,Star,ListVideo,Search
 import '@fontsource-variable/dm-sans';
 import '@fontsource-variable/manrope';
 import './style.css';
+import {api} from './api.js';
 const images={mountain:'/images/alpine-escape.jpg',ocean:'/images/contact-sheet.png',road:'/images/contact-sheet.png',city:'/images/contact-sheet.png',desert:'/images/contact-sheet.png',forest:'/images/contact-sheet.png'};
 const demoFolders=[{id:'d1',name:'Filme',count:24,color:'green'},{id:'d2',name:'Serien',count:48,color:'purple'},{id:'d3',name:'Reisen & Erinnerungen',count:16,color:'orange'},{id:'d4',name:'Projekte',count:12,color:'blue'}];
 const demoFiles=[['Alpine Escape','mountain','04:32','4K',2.4,'movie'],['The Ocean Between Us','ocean','12:08','4K',4.8,'movie'],['Into the Wild — S01E01','road','42:16','1080p',1.8,'series'],['Tokyo After Hours','city','08:24','4K',3.2,'movie'],['The Art of Slowing Down','desert','06:45','4K',2.1,'movie'],['Somewhere, in the forest','forest','18:52','1080p',1.6,'series']].map((a,i)=>({id:'demo'+i,name:a[0]+'.mp4',image:images[a[1]],duration:a[2],quality:a[3],size:a[4]*1e9,kind:a[5],mime:'video/mp4',created:'2026-11-02T09:00:00Z',starred:i===0,series:i===2?'Into the Wild':'Somewhere',season:1,episode:1,hls:'ready',demo:true,scene:i}));
-async function api(url,options={}){const r=await fetch(url,{...options,headers:{...(options.body&&!(options.body instanceof FormData)?{'Content-Type':'application/json'}:{}),...options.headers}});if(!r.ok){const data=await r.json().catch(()=>({}));throw new Error(data.error||'Die Aktion konnte nicht abgeschlossen werden.')}return r.status===204?null:r.json()}
+
 const bytes=n=>!n?'0 B':n>=1e12?(n/1e12).toFixed(1)+' TB':n>=1e9?(n/1e9).toFixed(1)+' GB':n>=1e6?(n/1e6).toFixed(1)+' MB':(n/1e3).toFixed(0)+' KB';
 const title=f=>f.name.replace(/\.[^.]+$/,'');
 const date=f=>new Date(f.created).toLocaleDateString('de-DE',{day:'numeric',month:'short'});
@@ -16,7 +17,7 @@ useEffect(()=>{if(!modal)return;const previous=document.activeElement;const box=
 const shareToken=location.pathname.startsWith('/s/')?location.pathname.split('/')[2]:null;
 const notify=message=>{setToast(message);setTimeout(()=>setToast(''),4000)};
 async function refresh(){if(shareToken){try{setShared(await api('/api/shared/'+shareToken))}catch(e){setShareError(e.message)}return}if(!user)return;const data=await api('/api/library');setFiles(data.files);setFolders(data.folders);setLinks(data.links)}
-useEffect(()=>{api('/api/me').then(setUser).finally(()=>setLoaded(true))},[]);
+useEffect(()=>{api('/api/me').then(setUser).catch(()=>setUser(null)).finally(()=>setLoaded(true))},[]);
 useEffect(()=>{refresh().catch(e=>notify(e.message))},[user]);
 useEffect(()=>{const handler=e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();searchRef.current?.focus()}if(e.key==='Escape'){setModal(null);setMenu(null);setSidebar(false)}};window.addEventListener('keydown',handler);return()=>window.removeEventListener('keydown',handler)},[]);
 useEffect(()=>{if(!user)return;const timer=setInterval(()=>refresh().catch(()=>{}),15000);return()=>clearInterval(timer)},[user]);
